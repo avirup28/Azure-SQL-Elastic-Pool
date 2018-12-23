@@ -1,0 +1,180 @@
+param(
+    [Parameter(Mandatory=$True)]
+    [object]$WebhookData
+    )
+
+ function ScaleUpStandard {   
+ 
+                if ($Dtu -eq "50") {
+                                    
+                                    $NewDtu = $Dtu+50
+                                    Write-Output "Scaling Up eDTU to $NewDtu for $Name"
+                                    Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'     
+                                                                
+                                   }
+ 
+                elseif ($Dtu -ge "100" -and $Dtu -lt "400") { 
+                                                      
+                                                        $NewDtu = $Dtu+100
+                                                        Write-Output "Scaling Up eDTU to $NewDtu for $Name"
+                                                        Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'     
+                                                                
+                                                            }
+
+                elseif ($Dtu -ge "400" -and $Dtu -lt 2000) { 
+                
+                                                        $NewDtu = $Dtu+400
+                                                        Write-Output "Scaling Up eDTU to $NewDtu for $Name"
+                                                        Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0' 
+                                                                                      
+                                                          }
+                elseif ($Dtu -ge "2000") { 
+                
+                                      $NewDtu = $Dtu+500
+                                      Write-Output "Scaling Up eDTU to $NewDtu for $Name"
+                                      Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0' 
+                
+                                         }
+
+                else {Write-Output "Current DTU is set at Maximum for Standard Edition i.e. 2000"}
+
+                }
+
+
+
+function ScaleUpPremium {
+
+                if ($Dtu -eq "125") { 
+                
+                                     $NewDtu = $Dtu+125
+                                     Write-Output "Scaling Up eDTU to $NewDtu for $Name"
+                                     Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0' 
+
+                                     }
+
+                elseif ($Dtu -eq "250") { 
+                
+                                     $NewDtu = $Dtu+250
+                                     Write-Output "Scaling Up eDTU to $NewDtu for $Name"
+                                     Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
+                
+                                        }
+
+                elseif ($Dtu -ge "500" -and $Dtu -lt 4000) {
+                
+                                                        $NewDtu = $Dtu+500
+                                                        Write-Output "Scaling Up eDTU to $NewDtu for $Name"
+                                                        Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0' 
+                
+                                                           }
+
+                else {Write-Output "Current DTU is set at Maximum for Premium Edition i.e. 4000"}
+
+                       }
+                
+
+
+
+function ScaleDownStandard {   
+ 
+                if ($Dtu -eq "100") {
+
+                                    $NewDtu = $Dtu-50
+                                    Write-Output "Scaling Down eDTU to $NewDtu for $Name"
+                                    Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'-Edition $Edition     
+                                                                
+                                   }
+ 
+                elseif ($Dtu -gt "100" -and $Dtu -le "400") { 
+                
+                                                        $NewDtu = $Dtu-100
+                                                        Write-Output "Scaling Down eDTU to $NewDtu for $Name"
+                                                        Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
+                                                                
+                                    }
+                elseif ($Dtu -gt "400" -and $Dtu -le 2000) { 
+                
+                                                        $NewDtu = $Dtu-400
+                                                        Write-Output "Scaling Down eDTU to $NewDtu for $Name"
+                                                        Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0' 
+                                                                                      
+                                                        }
+                elseif ($Dtu -gt "2000") { 
+                
+                                      $NewDtu = $Dtu-500
+                                      Write-Output "Scaling Down eDTU to $NewDtu for $Name"
+                                      Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0' 
+                
+                                      }
+
+                else {Write-Output "Current DTU is set at lowest for Standard Edition i.e. 50"}
+
+                           }
+
+
+
+function ScaleDownPremium {
+
+                if ($Dtu -eq "250") { 
+                
+                                     $NewDtu = $Dtu-125
+                                     Write-Output "Scaling Down eDTU to $NewDtu for $Name"
+                                     Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
+                                                                }
+                elseif ($Dtu -eq "500") { 
+                
+                                         $NewDtu = $Dtu-250
+                                         Write-Output "Scaling Down eDTU to $NewDtu for $Name"
+                                         Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0' 
+                
+                                                       }
+
+                elseif ($Dtu -gt "500") {
+                
+                                         $NewDtu = $Dtu-500
+                                         Write-Output "Scaling Down eDTU to $NewDtu for $Name"
+                                         Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
+                
+                                         }
+
+                else {Write-Output "Current DTU is set to lowest for Premium Edition i.e. 125"}
+
+                          } 
+
+#>
+	$Conn = Get-AutomationConnection -Name AzureRunAsConnection
+	Add-AzureRMAccount -ServicePrincipal -Tenant $Conn.TenantID `
+	-ApplicationID $Conn.ApplicationID -CertificateThumbprint $Conn.CertificateThumbprint
+
+
+
+
+if ($WebhookData) {
+
+$Req = $WebhookData.RequestBody 
+$converted=$Req | ConvertFrom-Json
+$ResourceName=$converted.context.resourceName
+$RG=$converted.context.resourceGroupName
+$ResourceId=$converted.context.resourceId
+$Avg=$converted.context.condition.metricValue
+$action=$converted.context.condition.operator
+ 
+}
+
+$Server = ($ResourceName -split '/')[0] 
+$Name = ($ResourceName -split '/')[1]
+
+if ($action -eq 'GreaterThan') {Write-Output "Performing Elastic Pool Scale Up Operation on $Name"}
+else {Write-Output "Performing Elastic Pool Scale Down Operation on $Name"}
+
+$Edition = (Get-AzureRmSqlElasticPool -ElasticPoolName $Name -ServerName $Server -ResourceGroupName $RG).Edition
+$Dtu = (Get-AzureRmSqlElasticPool -ElasticPoolName $Name -ServerName $Server -ResourceGroupName $RG).Dtu
+$MaxDtu = (Get-AzureRmSqlElasticPool -ElasticPoolName $Name -ServerName $Server -ResourceGroupName $RG).DatabaseDtuMax
+$MinDtu = (Get-AzureRmSqlElasticPool -ElasticPoolName $Name -ServerName $Server -ResourceGroupName $RG).DatabaseDtuMin
+
+
+if ($Avg -gt '75' -and $Edition -eq 'Standard') { ScaleUpStandard }
+if ($Avg -gt '75' -and $Edition -eq 'Premium') { ScaleUpPremium }
+
+if ($Avg -lt '35' -and $Edition -eq 'Standard') { ScaleDownStandard }
+if ($Avg -lt '35' -and $Edition -eq 'Premium') { ScaleDownPremium } 
