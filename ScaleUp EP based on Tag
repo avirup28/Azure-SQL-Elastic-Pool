@@ -1,0 +1,54 @@
+workflow ScaleUpElasticPool-Tag {
+
+<# Example of Tag : AutoScale : ScaleUpDay,ScaleUpHour,MaxDtu,ScaleDownDay,ScaleDownHour,MinDtu
+                            AutoScale : Mo,8,500,Fri,20,100 #>
+
+	$Conn = Get-AutomationConnection -Name AzureRunAsConnection
+	Add-AzureRMAccount -ServicePrincipal -Tenant $Conn.TenantID `
+-ApplicationID $Conn.ApplicationID -CertificateThumbprint $Conn.CertificateThumbprint
+
+
+$UTCTIME = [System.DateTime]::UtcNow
+
+#Reading Current Date and Time
+
+
+$CurrentTime = $UTCTIME.Hour
+$CurrentDay = $UTCTIME.DayOfWeek
+
+$DbServers = Get-AzureRmSqlServer | select ServerName , ResourceGroupName 
+ 
+ForEach ($DbServer in $DbServers) {
+         
+$Pools = Get-AzureRmSqlElasticPool -ServerName $DbServer.ServerName -ResourceGroupName $DbServer.ResourceGroupName | Where-Object {$PSItem.Tags.Keys -eq "AutoScale"} | select ElasticPoolName, ServerName, ResourceGroupName, Edition , Dtu
+
+
+ForEach -parallel ($Pool in $Pools) {
+
+$Server = $Pool.ServerName
+$RG = $Pool.ResourceGroupName
+$Name = $Pool.ElasticPoolName
+$Edition = $Pool.Edition
+$OldDtu = $Pool.Dtu
+
+$Tag = (Get-AzureRmSqlElasticPool -ResourceGroupName $RG -ElasticPoolName $Name -ServerName $Server).Tags
+$AutoScale = $Tag.AutoScale | ConvertFrom-String -Delimiter ","
+
+If ($AutoScale) {
+
+$DefinedDay = $AutoScale.P1
+$DefinedTime = $AutoScale.P2
+$Newdtu = $AutoScale.P3
+
+if ($CurrentDay -match $DefinedDay -and $DefinedTime -eq $CurrentTime) {
+
+Write-Output "Scaling Up SQL Elastic Pool : $Name from $OldDtu to $Newdtu"
+Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
+
+                }
+
+            }
+        }
+    }
+}
+
