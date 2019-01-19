@@ -1,54 +1,63 @@
-workflow ScaleDownElasticPool-Tag {
+workflow ScaleDownSqlElasticPool-BasedOnTag
+{
 
-<# Example of Tag : AutoScale : ScaleUpDay,ScaleUpHour,MaxDtu,ScaleDownDay,ScaleDownHour,MinDtu
-                            AutoScale : Mo,8,500,Fri,20,100 #>
-
-	$Conn = Get-AutomationConnection -Name AzureRunAsConnection
+    	$Conn = Get-AutomationConnection -Name AzureRunAsConnection
 	Add-AzureRMAccount -ServicePrincipal -Tenant $Conn.TenantID `
--ApplicationID $Conn.ApplicationID -CertificateThumbprint $Conn.CertificateThumbprint
+	-ApplicationID $Conn.ApplicationID -CertificateThumbprint $Conn.CertificateThumbprint
 
-#Getting UTC time
 
-$UTCTIME = [System.DateTime]::UtcNow
+<# Example of Tag : AutoScale : ScaleUpDay,ScaleUpHour,MaxDtu,DBMaxDtu,DBMinDtu,ScaleDownDay,ScaleDownHour,MinDtu
+                            AutoScale : Mo,8,500,400,100,Fri,20,100 #>
+
+#Converting UTC timezone to IST
+
+
+$ISTZONE = [System.TimeZoneInfo]::FindSystemTimeZoneById("India Standard Time")
+$ISTTIME = [System.TimeZoneInfo]::ConvertTimeFromUtc((Get-Date).ToUniversalTime(), $ISTZONE)
+
 
 #Reading Current Date and Time
 
 
-$CurrentTime = $UTCTIME.Hour
-$CurrentDay = $UTCTIME.DayOfWeek
+$CurrentTime = $ISTTIME.Hour
+$CurrentDay = $ISTTIME.DayOfWeek
 
-$DbServers = Get-AzureRmSqlServer | select ServerName , ResourceGroupName 
- 
-ForEach ($DbServer in $DbServers) {
-         
-$Pools = Get-AzureRmSqlElasticPool -ServerName $DbServer.ServerName -ResourceGroupName $DbServer.ResourceGroupName | Where-Object {$PSItem.Tags.Keys -eq "AutoScale"} | select ElasticPoolName, ServerName, ResourceGroupName, Edition , Dtu
+$DbServers = Get-AzureRmSqlServer | select ResourceGroupName,ServerName
 
+
+$UPools = @(ForEach ($DbServer in $DbServers) {
+
+(Get-AzureRmSqlElasticPool -ServerName $DbServer.ServerName -ResourceGroupName $DbServer.ResourceGroupName | Where-Object {$PSItem.Tags.Keys -eq "AutoScale"}).ResourceId})
+
+$Pools = $UPools.Where({ $null -ne $_ })
 
 ForEach -parallel ($Pool in $Pools) {
 
-$Server = $Pool.ServerName
-$RG = $Pool.ResourceGroupName
-$Name = $Pool.ElasticPoolName
-$Edition = $Pool.Edition
-$OldDtu = $Pool.Dtu
+$RG = ($Pool -split '/')[4] 
+$Server = ($Pool -split '/')[8]
+$EP = ($Pool -split '/')[10]
 
-$Tag = (Get-AzureRmSqlElasticPool -ResourceGroupName $RG -ElasticPoolName $Name -ServerName $Server).Tags
+$Edition = (Get-AzureRmSqlElasticPool -ServerName $Server -ResourceGroupName $RG -ElasticPoolName $EP).Edition
+$OldDtu = (Get-AzureRmSqlElasticPool -ServerName $Server -ResourceGroupName $RG -ElasticPoolName $EP).Dtu
+$Tag = (Get-AzureRmSqlElasticPool -ResourceGroupName $RG -ElasticPoolName $EP -ServerName $Server).Tags
+
 $AutoScale = $Tag.AutoScale | ConvertFrom-String -Delimiter ","
 
 If ($AutoScale) {
 
-$DefinedDay = $AutoScale.P4
-$DefinedTime = $AutoScale.P5
-$Newdtu = $AutoScale.P6
+$DefinedDay = $AutoScale.P6
+$DefinedTime = $AutoScale.P7
+$Newdtu = $AutoScale.P8
 
 if ($CurrentDay -match $DefinedDay -and $DefinedTime -eq $CurrentTime) {
 
-Write-Output "Scaling Down SQL Elastic Pool : $Name from $OldDtu to $Newdtu"
-Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
 
-                }
+Write-Output "Scaling Down eDTU for $EP from $OldDtu to $Newdtu"
+Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $EP -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0' –Dtu $Newdtu 
 
-            }
+            } 
         }
+              
     }
+
 }
