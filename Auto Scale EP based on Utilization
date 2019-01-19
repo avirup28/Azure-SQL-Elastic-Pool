@@ -89,6 +89,7 @@ function ScaleDownStandard {
                 
                                                         $NewDtu = $Dtu-100
                                                         Write-Output "Scaling Down eDTU to $NewDtu for $Name"
+							Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
                                                         Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
                                                                 
                                     }
@@ -96,14 +97,16 @@ function ScaleDownStandard {
                 
                                                         $NewDtu = $Dtu-400
                                                         Write-Output "Scaling Down eDTU to $NewDtu for $Name"
-                                                        Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0' 
+							Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
+                                                        Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition
                                                                                       
                                                         }
                 elseif ($Dtu -gt "2000") { 
                 
                                       $NewDtu = $Dtu-500
                                       Write-Output "Scaling Down eDTU to $NewDtu for $Name"
-                                      Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0' 
+				      Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
+                                      Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition
                 
                                       }
 
@@ -119,13 +122,15 @@ function ScaleDownPremium {
                 
                                      $NewDtu = $Dtu-125
                                      Write-Output "Scaling Down eDTU to $NewDtu for $Name"
-                                     Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
+				     Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
+                                     Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition
                                                                 }
                 elseif ($Dtu -eq "500") { 
                 
                                          $NewDtu = $Dtu-250
                                          Write-Output "Scaling Down eDTU to $NewDtu for $Name"
-                                         Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0' 
+					 Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
+                                         Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition
                 
                                                        }
 
@@ -133,7 +138,8 @@ function ScaleDownPremium {
                 
                                          $NewDtu = $Dtu-500
                                          Write-Output "Scaling Down eDTU to $NewDtu for $Name"
-                                         Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
+					 Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name -Edition $Edition –DatabaseDtuMax $Newdtu -DatabaseDtuMin '0'
+                                         Set-AzureRmSqlElasticPool –ResourceGroupName $RG –ServerName $Server –ElasticPoolName $Name –Dtu $Newdtu -Edition $Edition
                 
                                          }
 
